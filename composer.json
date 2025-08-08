@@ -1,5 +1,6 @@
 {
   "name": "jaysparmar/codeigniter3",
+  "version": "1.0.0",
   "autoload": {
     "psr-4": {
       "CodeIgniter3\\": "src/"
