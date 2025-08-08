@@ -1,6 +1,14 @@
 {
   "name": "jaysparmar/codeigniter3",
-  "version": "1.0.0",
+  "description": "A package to work with CodeIgniter 3 framework",
+  "version": "1.0.1",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jay Parmar",
+      "email": "bharticlou@gmail.com"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "CodeIgniter3\\": "src/"
