@@ -413,10 +413,23 @@ if ( ! is_php('5.4'))
 
 		// Check for both global and namespaced classes
 		$class_exists = class_exists($class, FALSE);
-		$namespaced_class = 'Infinitie\\Ci3\\controllers\\' . $class;
-		if (!$class_exists && class_exists($namespaced_class, FALSE)) {
-			$class = $namespaced_class;
-			$class_exists = TRUE;
+		
+		// Try different namespace patterns based on directory
+		if (!$class_exists) {
+            $directory_part = isset($RTR->directory) ? trim($RTR->directory, '/') : '';
+
+            if (!empty($directory_part)) {
+				// For subdirectory controllers like admin/Home
+				$namespaced_class = 'Ci3\\controllers\\' . str_replace('/', '\\', $directory_part) . '\\' . $class;
+			} else {
+				// For root controllers
+				$namespaced_class = 'Ci3\\controllers\\' . $class;
+			}
+			
+			if (class_exists($namespaced_class, FALSE)) {
+				$class = $namespaced_class;
+				$class_exists = TRUE;
+			}
 		}
 
 		if ( ! $class_exists OR $method[0] === '_' OR method_exists('CI_Controller', $method))
