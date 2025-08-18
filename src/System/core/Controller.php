@@ -1,4 +1,7 @@
 <?php
+
+namespace CodeIgniter3\System\Core;
+
 /**
  * CodeIgniter
  *
@@ -102,4 +105,9 @@ class CI_Controller {
 		return self::$instance;
 	}
 
+}
+
+// Create a global alias for backward compatibility
+if (!class_exists('CI_Controller', false)) {
+	class_alias('CodeIgniter3\System\Core\CI_Controller', 'CI_Controller');
 }

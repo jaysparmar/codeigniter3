@@ -411,7 +411,15 @@ if ( ! is_php('5.4'))
 	{
 		require_once(APPPATH.'controllers/'.$RTR->directory.$class.'.php');
 
-		if ( ! class_exists($class, FALSE) OR $method[0] === '_' OR method_exists('CI_Controller', $method))
+		// Check for both global and namespaced classes
+		$class_exists = class_exists($class, FALSE);
+		$namespaced_class = 'Infinitie\\Ci3\\controllers\\' . $class;
+		if (!$class_exists && class_exists($namespaced_class, FALSE)) {
+			$class = $namespaced_class;
+			$class_exists = TRUE;
+		}
+
+		if ( ! $class_exists OR $method[0] === '_' OR method_exists('CI_Controller', $method))
 		{
 			$e404 = TRUE;
 		}
