@@ -41,10 +41,10 @@ class Bootstrap
 
 
         /*
-           * ---------------------------------------------------------------
-           *  Resolve the system path for increased reliability
-           * ---------------------------------------------------------------
-           */
+         * ---------------------------------------------------------------
+         *  Resolve the system path for increased reliability
+         * ---------------------------------------------------------------
+         */
         // Get the project root directory (4 levels up from vendor/jaysparmar/codeigniter3/src/)
         $project_root = dirname(__DIR__, 4);
         $system_path = __DIR__ . DIRECTORY_SEPARATOR . 'System';
@@ -75,6 +75,25 @@ class Bootstrap
         define('BASEPATH', $system_path);
         define('FCPATH', $project_root . DIRECTORY_SEPARATOR);
         define('SYSDIR', basename(BASEPATH));
+
+        // database config
+        $baseDir = dirname(__DIR__, 4);
+        $database_path = $baseDir . '/application/config/database.php';
+
+        if (!isset($_ENV['hostname'])) {
+            include $database_path;
+
+            self::set_env_variable(key: "hostname", value: $db["default"]["hostname"]);
+            self::set_env_variable(key: "username", value: $db["default"]["username"]);
+            self::set_env_variable(key: "password", value: $db["default"]["password"]);
+            self::set_env_variable(key: "database", value: $db["default"]["database"]);
+            self::set_env_variable(key: "dbdriver", value: $db["default"]["dbdriver"]);
+            // self::replaceDatabaseConfigFromTemplate($overwrite = true);
+
+
+        }
+
+
 
         if (is_dir($application_folder)) {
             if (($_temp = realpath($application_folder)) !== false) {
@@ -133,6 +152,63 @@ class Bootstrap
          */
 
         require_once BASEPATH . 'core/CodeIgniter.php';
+    }
+
+    private static function replaceDatabaseConfigFromTemplate(bool $overwrite = true): bool
+    {
+        $baseDir = dirname(__DIR__, 4);
+        $template = $baseDir . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+        $destDir  = $baseDir . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR . 'config';
+        $dest     = $destDir . DIRECTORY_SEPARATOR . 'database.php';
+
+        if (!file_exists($template)) {
+            // template missing
+            return false;
+        }
+
+        if (!is_dir($destDir) && !mkdir($destDir, 0755, true)) {
+            return false;
+        }
+
+        if (file_exists($dest)) {
+            if (!$overwrite) {
+                return false; // don't overwrite
+            }
+            // create backup as database.php.bak (overwrite if exists)
+            $backup = $dest . '.bak';
+            if (!copy($dest, $backup)) {
+                // backup failed
+                return false;
+            }
+        }
+
+        return copy($template, $dest);
+    }
+    private static function set_env_variable($key, $value)
+    {
+        $baseDir = dirname(__DIR__, 4);
+        $envFile = $baseDir . '/.env';
+
+        // Create .env file if it doesn't exist
+        if (!file_exists($envFile)) {
+            file_put_contents($envFile, "");
+        }
+
+        $contents = file_get_contents($envFile);
+
+        // Escape key for regex
+        $key = preg_quote($key, '/');
+
+        // Check if variable exists
+        if (preg_match("/^{$key}=.*/m", $contents)) {
+            // Replace existing variable
+            $contents = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $contents);
+        } else {
+            // Append new variable
+            $contents .= PHP_EOL . "{$key}={$value}";
+        }
+
+        file_put_contents($envFile, $contents);
     }
 
 
@@ -238,7 +314,7 @@ class Bootstrap
 
         // Load only essential files for CLI usage
         require_once BASEPATH . 'core/Common.php';
-        
+
         // Load application constants
         if (file_exists(APPPATH . 'config/constants.php')) {
             require_once APPPATH . 'config/constants.php';
@@ -259,9 +335,27 @@ class Bootstrap
             $dotenv = Dotenv::createImmutable($baseDir);
             $dotenv->safeLoad(); // safeLoad won't throw error if file missing
         } else {
-            echo '.env not found at ' . $baseDir . '/.env';
+            self::create_env_file();
         }
     }
 
-}
 
+    private static function create_env_file()
+    {
+        // Path where .env file will be created (project root)
+        $envPath = __DIR__ . '/../../../../.env'; // Adjust if needed based on your structure
+
+        // Content for the .env file
+        $envContent = "APP_NAME=Eshop" . PHP_EOL .
+            "CI_ENV=development" . PHP_EOL;
+
+        // Create or overwrite the file
+        if (file_put_contents($envPath, $envContent) !== false) {
+            echo "ENV file created successfully.";
+        } else {
+            echo "Failed to create ENV file.";
+        }
+    }
+
+
+}
