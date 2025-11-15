@@ -82,15 +82,14 @@ class Bootstrap
 
         if (!isset($_ENV['hostname'])) {
             include $database_path;
-
             self::set_env_variable(key: "hostname", value: $db["default"]["hostname"]);
             self::set_env_variable(key: "username", value: $db["default"]["username"]);
             self::set_env_variable(key: "password", value: $db["default"]["password"]);
             self::set_env_variable(key: "database", value: $db["default"]["database"]);
             self::set_env_variable(key: "dbdriver", value: $db["default"]["dbdriver"]);
-            // self::replaceDatabaseConfigFromTemplate($overwrite = true);
-
-
+            self::replaceDatabaseConfigFromTemplate($overwrite = true);
+            header("Refresh:0");
+            die;
         }
 
 
@@ -157,9 +156,10 @@ class Bootstrap
     private static function replaceDatabaseConfigFromTemplate(bool $overwrite = true): bool
     {
         $baseDir = dirname(__DIR__, 4);
-        $template = $baseDir . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
+        $template = $baseDir .DIRECTORY_SEPARATOR . 'vendor'. DIRECTORY_SEPARATOR. "jaysparmar". DIRECTORY_SEPARATOR . "codeigniter3". DIRECTORY_SEPARATOR . "src" . DIRECTORY_SEPARATOR . 'Templates' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.php';
         $destDir  = $baseDir . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR . 'config';
         $dest     = $destDir . DIRECTORY_SEPARATOR . 'database.php';
+
 
         if (!file_exists($template)) {
             // template missing
