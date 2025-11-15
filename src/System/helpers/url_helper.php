@@ -85,7 +85,7 @@ if ( ! function_exists('base_url'))
 	 */
 	function base_url($uri = '', $protocol = NULL)
 	{
-        if(!isset($uri) || $uri != NULL){
+        if(!isset($uri) || $uri == NULL){
             $uri = '';
         }
 
