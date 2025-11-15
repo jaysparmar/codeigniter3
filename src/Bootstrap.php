@@ -340,6 +340,7 @@ class Bootstrap
     }
 
 
+
     private static function create_env_file()
     {
         // Path where .env file will be created (project root)
